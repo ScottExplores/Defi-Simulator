@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AccountHealth } from '../types';
-import { Info, ChevronDown } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 interface SummaryCardProps {
   health: AccountHealth;
@@ -77,12 +77,6 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({ health, title = "Your 
         {/* Header Row */}
         <div className="flex justify-between items-center mb-6">
             <h2 className="text-3xl font-normal text-white tracking-tight">{title}</h2>
-            
-            <button className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 text-sm font-medium hover:bg-zinc-800 transition-colors">
-                <div className="w-4 h-4 bg-blue-600 rounded-full"></div>
-                <span>Base</span>
-                <ChevronDown size={14} className="text-zinc-500" />
-            </button>
         </div>
 
         {/* Card */}

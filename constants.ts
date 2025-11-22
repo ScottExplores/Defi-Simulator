@@ -5,6 +5,31 @@ export const INITIAL_RISK_PARAMS: RiskParameters = {
   liquidationIncentive: 1.08,
 };
 
+export const TOKEN_LOGOS: Record<string, string> = {
+    'ETH': 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
+    'WETH': 'https://assets.coingecko.com/coins/images/2518/small/weth.png',
+    'USDC': 'https://assets.coingecko.com/coins/images/6319/small/USD_Coin_icon.png',
+    'AERO': 'https://moonwell.fi/_next/static/media/aero.ab774409.svg',
+    'WELL': 'https://moonwell.fi/_next/static/media/well.2843938f.svg',
+    'VIRTUAL': 'https://moonwell.fi/_next/static/media/virtual.0d34f704.svg',
+    'cbBTC': 'https://moonwell.fi/_next/static/media/cbbtc.8571cf30.svg',
+    'cbETH': 'https://assets.coingecko.com/coins/images/26998/small/cbETH.png',
+    'cbXRP': 'https://moonwell.fi/_next/static/media/cbxrp.4520ec4b.svg',
+    'DAI': 'https://assets.coingecko.com/coins/images/9956/small/Badge_Dai.png',
+    'USDbC': 'https://assets.coingecko.com/coins/images/31166/small/USDbC.png',
+    'USDS': 'https://assets.coingecko.com/coins/images/39652/small/sUSDS.png',
+    'EURC': 'https://assets.coingecko.com/coins/images/26027/small/EURC.png',
+    'wstETH': 'https://assets.coingecko.com/coins/images/12467/small/wstETH.png',
+    'rETH': 'https://assets.coingecko.com/coins/images/20764/small/reth.png',
+    'weETH': 'https://assets.coingecko.com/coins/images/33063/small/weETH.png',
+    'wrsETH': 'https://assets.coingecko.com/coins/images/35315/small/wrsETH.png',
+    'tBTC': 'https://assets.coingecko.com/coins/images/11224/small/tBTC.png',
+    'LBTC': 'https://assets.coingecko.com/coins/images/39454/small/LBTC.png',
+    'MORPHO': 'https://assets.coingecko.com/coins/images/20000/small/morpho.png',
+    'MAMO': 'https://moonwell.fi/_next/static/media/mamo.47bca24e.svg',
+    'LINK': 'https://app.aave.com/icons/tokens/link.svg',
+};
+
 export const INITIAL_SUPPLIED: Position[] = [
   {
     id: 'eth-supply',
@@ -117,4 +142,5 @@ export const PRESET_ASSETS = [
   { symbol: 'MORPHO', price: 1.50, cf: 0.65, stable: false },
   { symbol: 'cbXRP', price: 1.93, cf: 0.74, stable: false },
   { symbol: 'MAMO', price: 0.022, cf: 0.50, stable: false },
+  { symbol: 'LINK', price: 15.00, cf: 0.71, stable: false },
 ];

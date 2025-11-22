@@ -1,23 +1,27 @@
 import React from 'react';
 import { SimulationState, Position } from '../types';
 import { RefreshCw, PlayCircle } from 'lucide-react';
+import { TOKEN_LOGOS } from '../constants';
 
 interface ScenarioSimulatorProps {
   simulation: SimulationState;
   onUpdate: (sim: SimulationState) => void;
   positions: Position[];
+  isolatedMarkets?: { id: string; name: string }[];
 }
 
-export const ScenarioSimulator: React.FC<ScenarioSimulatorProps> = ({ simulation, onUpdate, positions }) => {
+export const ScenarioSimulator: React.FC<ScenarioSimulatorProps> = ({ simulation, onUpdate, positions, isolatedMarkets = [] }) => {
   
   const handleGlobalChange = (val: number) => {
     onUpdate({ ...simulation, globalShock: val });
   };
 
-  const handleAssetChange = (id: string, val: number) => {
+  // Update shocks using Composite Key: "Group:Symbol"
+  const handleAssetChange = (group: string, symbol: string, val: number) => {
+    const compositeKey = `${group}:${symbol}`;
     onUpdate({ 
       ...simulation, 
-      assetShocks: { ...simulation.assetShocks, [id]: val } 
+      assetShocks: { ...simulation.assetShocks, [compositeKey]: val } 
     });
   };
 
@@ -30,16 +34,14 @@ export const ScenarioSimulator: React.FC<ScenarioSimulatorProps> = ({ simulation
   };
 
   const formatPrice = (val: number) => {
-    // Use toLocaleString to automatically drop trailing zeros while keeping precision for small numbers
     return '$' + val.toLocaleString('en-US', { 
         minimumFractionDigits: 2, 
         maximumFractionDigits: 6 
     });
   };
 
-  // Dedup assets for individual sliders
-  const uniqueAssets = Array.from(new Set(positions.map(p => p.symbol)))
-    .map(symbol => positions.find(p => p.symbol === symbol)!);
+  // Get all unique groups present in the positions, plus Core
+  const groups = ['core', ...isolatedMarkets.map(m => m.id)];
 
   return (
     <div className="bg-surface rounded-xl border border-surfaceHighlight p-6">
@@ -85,43 +87,83 @@ export const ScenarioSimulator: React.FC<ScenarioSimulatorProps> = ({ simulation
         </div>
       </div>
 
-      <div className="space-y-5">
-        <h4 className="text-base uppercase text-textMuted font-semibold">Individual Asset Override</h4>
-        {uniqueAssets.filter(a => !a.isStable).map(asset => {
-            const currentShock = simulation.assetShocks[asset.id] || 0;
-            // Effective price calc for display
-            const baseP = asset.basePrice;
-            const globalMult = 1 + simulation.globalShock;
-            const assetMult = 1 + currentShock;
-            const finalP = baseP * globalMult * assetMult;
+      <div className="space-y-6">
+        {groups.map(groupId => {
+            // Filter positions for this group
+            const groupPositions = positions.filter(p => (p.isolationGroup || 'core') === groupId);
+            if (groupPositions.length === 0) return null;
+
+            // Dedup assets in this group
+            const uniqueAssets = Array.from(new Set(groupPositions.map(p => p.symbol)))
+                .map(symbol => groupPositions.find(p => p.symbol === symbol)!)
+                .filter(a => !a.isStable)
+                .sort((a, b) => b.basePrice - a.basePrice);
+
+            if (uniqueAssets.length === 0) return null;
+
+            const groupName = groupId === 'core' ? 'Core Market' : isolatedMarkets.find(m => m.id === groupId)?.name || 'Isolated Market';
 
             return (
-                <div key={asset.id} className="bg-zinc-950/30 p-5 rounded-lg border border-zinc-800/50">
-                    <div className="flex justify-between text-base mb-3">
-                        <span className="font-bold text-textMain">{asset.symbol}</span>
-                        <div className="flex gap-4">
-                            <span className="text-textMuted line-through">{formatPrice(baseP)}</span>
-                            <span className="text-textMain font-mono">{formatPrice(finalP)}</span>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <input
-                            type="range"
-                            min="-0.95"
-                            max="1.00"
-                            step="0.05"
-                            value={currentShock}
-                            onChange={(e) => handleAssetChange(asset.id, parseFloat(e.target.value))}
-                            className="flex-1 h-2 bg-surfaceHighlight rounded-lg appearance-none cursor-pointer accent-indigo-500"
-                        />
-                        <span className={`text-base w-14 text-right font-mono ${currentShock !== 0 ? 'text-indigo-400' : 'text-textMuted'}`}>
-                            {currentShock > 0 ? '+' : ''}{(currentShock * 100).toFixed(0)}%
-                        </span>
+                <div key={groupId} className="border-t border-zinc-800 pt-5 first:border-0 first:pt-0">
+                    <h4 className="text-sm uppercase text-indigo-400 font-bold mb-4 tracking-wider flex items-center gap-2">
+                        {groupName}
+                        {groupId !== 'core' && <span className="text-[10px] bg-indigo-500/10 px-1.5 py-0.5 rounded text-indigo-300 border border-indigo-500/20">Isolated</span>}
+                    </h4>
+                    
+                    <div className="space-y-4">
+                        {uniqueAssets.map(asset => {
+                            const compositeKey = `${groupId}:${asset.symbol}`;
+                            const currentShock = simulation.assetShocks[compositeKey] || 0;
+                            const baseP = asset.basePrice;
+                            const globalMult = 1 + simulation.globalShock;
+                            const assetMult = 1 + currentShock;
+                            const finalP = baseP * globalMult * assetMult;
+
+                            return (
+                                <div key={compositeKey} className="bg-zinc-950/50 p-4 rounded-lg border border-zinc-800/50 hover:border-zinc-700 transition-colors">
+                                    <div className="flex justify-between items-center mb-3">
+                                        <div className="flex items-center gap-3">
+                                            {TOKEN_LOGOS[asset.symbol] ? (
+                                                <img src={TOKEN_LOGOS[asset.symbol]} alt={asset.symbol} className="w-6 h-6 rounded-full" />
+                                            ) : (
+                                                <div className="w-6 h-6 rounded-full bg-zinc-800"></div>
+                                            )}
+                                            <span className="font-bold text-textMain text-lg">{asset.symbol}</span>
+                                        </div>
+                                        <div className="flex gap-2 items-center text-sm md:text-base">
+                                            <div className="flex flex-col items-end">
+                                                <span className="text-zinc-500 text-xs uppercase font-medium">Price</span>
+                                                <div className="flex items-center gap-2">
+                                                     <span className="text-zinc-400">{formatPrice(baseP)}</span>
+                                                     <span className="text-zinc-600 text-xs">→</span>
+                                                     <span className="text-white font-bold font-mono">{formatPrice(finalP)}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-4">
+                                        <input
+                                            type="range"
+                                            min="-0.95"
+                                            max="1.00"
+                                            step="0.05"
+                                            value={currentShock}
+                                            onChange={(e) => handleAssetChange(groupId, asset.symbol, parseFloat(e.target.value))}
+                                            className="flex-1 h-2 bg-surfaceHighlight rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                                        />
+                                        <span className={`text-base w-14 text-right font-mono ${currentShock !== 0 ? 'text-indigo-400' : 'text-textMuted'}`}>
+                                            {currentShock > 0 ? '+' : ''}{(currentShock * 100).toFixed(0)}%
+                                        </span>
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
             );
         })}
-        {uniqueAssets.filter(a => !a.isStable).length === 0 && (
+
+        {positions.filter(p => !p.isStable).length === 0 && (
              <p className="text-base text-textMuted italic">Add non-stable assets to enable individual overrides.</p>
         )}
       </div>

@@ -1,3 +1,4 @@
+
 export interface RiskParameters {
   closeFactor: number; // 0 to 1
   liquidationIncentive: number; // e.g., 1.08 for 8%
@@ -42,4 +43,10 @@ export interface LiquidationScenario {
   seizedCollateralUSD: number;
   postLiquidationHealth: number;
   seizedBreakdown: Array<{ symbol: string; amount: number; valueUSD: number }>;
+}
+
+declare global {
+  interface Window {
+    ethereum?: any;
+  }
 }
