@@ -80,7 +80,7 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({ health, title = "Your 
         </div>
 
         {/* Card */}
-        <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-6 md:p-8 shadow-xl">
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 md:p-8 shadow-xl">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-10">
                 <div>
                     <div className="text-sm font-medium text-zinc-500 mb-1">Total Supplied</div>

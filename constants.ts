@@ -1,3 +1,4 @@
+
 import { Position, RiskParameters } from './types';
 
 export const INITIAL_RISK_PARAMS: RiskParameters = {
@@ -9,6 +10,7 @@ export const TOKEN_LOGOS: Record<string, string> = {
     'ETH': 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
     'WETH': 'https://assets.coingecko.com/coins/images/2518/small/weth.png',
     'USDC': 'https://assets.coingecko.com/coins/images/6319/small/USD_Coin_icon.png',
+    'USDT': 'https://app.aave.com/icons/tokens/usdt.svg',
     'AERO': 'https://moonwell.fi/_next/static/media/aero.ab774409.svg',
     'WELL': 'https://moonwell.fi/_next/static/media/well.2843938f.svg',
     'VIRTUAL': 'https://moonwell.fi/_next/static/media/virtual.0d34f704.svg',
@@ -30,7 +32,51 @@ export const TOKEN_LOGOS: Record<string, string> = {
     'LINK': 'https://app.aave.com/icons/tokens/link.svg',
 };
 
+// --- GUEST DEFAULTS (Simple) ---
 export const INITIAL_SUPPLIED: Position[] = [
+  {
+    id: 'eth-supply-guest',
+    symbol: 'ETH',
+    amount: 5.0,
+    basePrice: 2700,
+    collateralFactor: 0.84,
+    isCollateral: true,
+    isStable: false,
+    type: 'supply',
+    marketType: 'core',
+    isolationGroup: 'core'
+  },
+  {
+    id: 'cbbtc-supply-guest',
+    symbol: 'cbBTC',
+    amount: 0.1,
+    basePrice: 95000,
+    collateralFactor: 0.85,
+    isCollateral: true,
+    isStable: false,
+    type: 'supply',
+    marketType: 'core',
+    isolationGroup: 'core'
+  }
+];
+
+export const INITIAL_BORROWED: Position[] = [
+  {
+    id: 'usdc-borrow-guest',
+    symbol: 'USDC',
+    amount: 5000,
+    basePrice: 1.0,
+    collateralFactor: 0,
+    isCollateral: false,
+    isStable: true,
+    type: 'borrow',
+    marketType: 'core',
+    isolationGroup: 'core'
+  },
+];
+
+// --- SCOTT'S FULL PORTFOLIO DEFAULTS ---
+const SCOTT_CORE_SUPPLIED: Position[] = [
   {
     id: 'eth-supply',
     symbol: 'ETH',
@@ -102,16 +148,16 @@ export const INITIAL_SUPPLIED: Position[] = [
     type: 'supply',
     marketType: 'core',
     isolationGroup: 'core'
-  },
+  }
 ];
 
-export const INITIAL_BORROWED: Position[] = [
+const SCOTT_CORE_BORROWED: Position[] = [
   {
     id: 'usdc-borrow',
     symbol: 'USDC',
     amount: 52068.17,
     basePrice: 1.0,
-    collateralFactor: 0, // Not relevant for borrow
+    collateralFactor: 0,
     isCollateral: false,
     isStable: true,
     type: 'borrow',
@@ -120,9 +166,71 @@ export const INITIAL_BORROWED: Position[] = [
   },
 ];
 
+export const SCOTT_DEFAULTS = {
+    // Full Core Portfolio
+    coreSupplied: SCOTT_CORE_SUPPLIED,
+    coreBorrowed: SCOTT_CORE_BORROWED,
+    
+    // Isolated Market
+    isolatedMarkets: [{ id: 'iso-scott-demo', name: 'Scott\'s Iso Market' }],
+    isoSupplied: [
+        {
+            id: 'iso-scott-link-supply',
+            symbol: 'LINK',
+            amount: 1868.56,
+            basePrice: 12.51,
+            collateralFactor: 0.71,
+            isCollateral: true,
+            isStable: false,
+            type: 'supply',
+            marketType: 'isolated',
+            isolationGroup: 'iso-scott-demo'
+        },
+        {
+            id: 'iso-scott-eth-supply',
+            symbol: 'ETH',
+            amount: 4.079,
+            basePrice: 2824.54,
+            collateralFactor: 0.84,
+            isCollateral: true,
+            isStable: false,
+            type: 'supply',
+            marketType: 'isolated',
+            isolationGroup: 'iso-scott-demo'
+        }
+    ],
+    isoBorrowed: [
+        {
+            id: 'iso-scott-bor-usdc',
+            symbol: 'USDC',
+            amount: 6331,
+            basePrice: 1.0,
+            collateralFactor: 0,
+            isCollateral: false,
+            isStable: true,
+            type: 'borrow',
+            marketType: 'isolated',
+            isolationGroup: 'iso-scott-demo'
+        },
+        {
+            id: 'iso-scott-bor-usdt',
+            symbol: 'USDT',
+            amount: 12337,
+            basePrice: 1.0,
+            collateralFactor: 0,
+            isCollateral: false,
+            isStable: true,
+            type: 'borrow',
+            marketType: 'isolated',
+            isolationGroup: 'iso-scott-demo'
+        }
+    ]
+};
+
 // Based on the provided image
 export const PRESET_ASSETS = [
   { symbol: 'USDC', price: 1.0, cf: 0.88, stable: true },
+  { symbol: 'USDT', price: 1.0, cf: 0.75, stable: true },
   { symbol: 'ETH', price: 2700, cf: 0.84, stable: false },
   { symbol: 'cbBTC', price: 95000, cf: 0.85, stable: false },
   { symbol: 'cbETH', price: 2800, cf: 0.81, stable: false },

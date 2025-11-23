@@ -3,12 +3,18 @@ import { Position } from '../types';
 import { PRESET_ASSETS, TOKEN_LOGOS } from '../constants';
 import { Trash2, Plus, ChevronDown, Search } from 'lucide-react';
 
+// Extend Position to include optional simulation data for display
+interface DisplayPosition extends Position {
+    currentPrice?: number;
+    currentValue?: number;
+}
+
 interface PortfolioTableProps {
   title: string;
-  positions: Position[]; // Current filtered list
+  positions: DisplayPosition[]; // Current filtered list with sim data
   type: 'supply' | 'borrow';
   group: string; // 'core' or isoId
-  allPositions: Position[]; // Global state for updating
+  allPositions: Position[]; // Global state for updating (raw positions)
   setAllPositions: (pos: Position[]) => void;
   getPrice: (symbol: string) => number;
 }
@@ -24,8 +30,9 @@ const FormattedNumberInput: React.FC<{
     value: number; 
     onChange: (val: number) => void; 
     className?: string;
-    placeholder?: string; 
-}> = ({ value, onChange, className, placeholder }) => {
+    placeholder?: string;
+    isSimulated?: boolean;
+}> = ({ value, onChange, className, placeholder, isSimulated }) => {
     const [localVal, setLocalVal] = useState('');
 
     // Helper to add commas
@@ -73,7 +80,7 @@ const FormattedNumberInput: React.FC<{
             onChange={handleChange}
             onBlur={handleBlur}
             onFocus={handleFocus}
-            className={className}
+            className={`${className} ${isSimulated ? 'text-indigo-300' : ''}`}
             placeholder={placeholder}
         />
     );
@@ -209,7 +216,11 @@ export const PortfolioTable: React.FC<PortfolioTableProps> = ({ title, positions
                 </tr>
             )}
             {positions.map((pos) => {
-              const value = pos.amount * pos.basePrice;
+              // Use simulated price if available, otherwise base price
+              const displayPrice = pos.currentPrice ?? pos.basePrice;
+              const value = pos.amount * displayPrice;
+              const isSimulated = pos.currentPrice !== undefined && Math.abs(pos.currentPrice - pos.basePrice) > 0.000001;
+
               return (
                 <tr key={pos.id} className="hover:bg-surfaceHighlight/30 transition-colors group">
                   <td className="px-4 py-3">
@@ -245,10 +256,11 @@ export const PortfolioTable: React.FC<PortfolioTableProps> = ({ title, positions
                          <div className="flex items-center justify-end gap-1">
                             <span className="text-textMuted text-sm">$</span>
                             <FormattedNumberInput
-                                value={pos.basePrice}
+                                value={displayPrice}
                                 onChange={(val) => handleChange(pos.id, 'basePrice', val)}
                                 className="bg-transparent border-b border-transparent hover:border-zinc-700 focus:border-primary outline-none text-textMain text-base font-mono text-right w-24 p-0 focus:ring-0"
                                 placeholder="0.00"
+                                isSimulated={isSimulated}
                             />
                         </div>
                     </div>

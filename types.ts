@@ -45,6 +45,13 @@ export interface LiquidationScenario {
   seizedBreakdown: Array<{ symbol: string; amount: number; valueUSD: number }>;
 }
 
+export interface MarketContext {
+  id: string;
+  type: 'text' | 'image';
+  content: string;
+  timestamp: number;
+}
+
 declare global {
   interface Window {
     ethereum?: any;

@@ -1,5 +1,5 @@
 {
-  "name": "DeFi Collateral Simulator",
+  "name": "DeWell",
   "description": "A responsive, dark-mode web app to model lending account health, borrow power, and liquidation scenarios with real-time price shock simulations.",
   "requestFramePermissions": []
 }

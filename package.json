@@ -1,5 +1,5 @@
 {
-  "name": "defi-collateral-simulator",
+  "name": "dewell",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -12,7 +12,8 @@
     "lucide-react": "^0.554.0",
     "recharts": "^3.4.1",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "@google/genai": "^1.30.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

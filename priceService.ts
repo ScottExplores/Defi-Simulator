@@ -1,3 +1,4 @@
+
 const SYMBOL_MAP: Record<string, string> = {
   'ETH': 'ethereum',
   'WETH': 'ethereum',
@@ -87,4 +88,46 @@ export async function fetchTokenPrices(symbols: string[]): Promise<Record<string
       console.error("Price fetch error:", error);
       return {};
   }
+}
+
+export interface ChartDataPoint {
+    timestamp: number;
+    price: number;
+}
+
+export async function fetchHistoricalData(coinId: string, days: number): Promise<ChartDataPoint[]> {
+    const url = `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=${days}`;
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Failed to fetch chart data");
+        const data = await response.json();
+        // data.prices is [[timestamp, price], ...]
+        return data.prices.map((p: number[]) => ({
+            timestamp: p[0],
+            price: p[1]
+        }));
+    } catch (e) {
+        console.error("Chart fetch error", e);
+        return [];
+    }
+}
+
+export interface FearGreedData {
+    value: string;
+    value_classification: string;
+    timestamp: string;
+}
+
+export async function fetchFearAndGreed(): Promise<FearGreedData | null> {
+    try {
+        const response = await fetch('https://api.alternative.me/fng/?limit=1');
+        const data = await response.json();
+        if (data.data && data.data.length > 0) {
+            return data.data[0];
+        }
+        return null;
+    } catch (e) {
+        console.error("FearGreed fetch error", e);
+        return null;
+    }
 }
